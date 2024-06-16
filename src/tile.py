@@ -1,25 +1,39 @@
 class Tile:
-    def __init__(self, connections):
-        self.connections = connections
-        self.rotation = 0
-        self.flip = False
+    def __init__(self, exits, overpass=None):
+        self.exits = exits
+        self.is_overpass = overpass if overpass is not None else False
     
     def rotate(self):
-        self.rotation = (self.rotation + 1) % 4
-        for connection_type in self.connections:
-            connection_type[:] = connection_type[-1:] + connection_type[:-1]
+        self.exits[:] = self.exits[-1:] + self.exits[:-1]
     
-    def flip(self):
-        self.flip = not self.flip
-        for connection_type in self.connections:
-            connection_type.reverse()
+    def get_exits(self):
+        return self.exits
 
-    def has_rail_connection(self, direction):
-        adj_dir = (direction - self.rotation) % 4
-        return self.connections[0][adj_dir]
-
-    def has_road_connection(self, direction):
-        adj_dir = (direction + self.rotation) % 4
-        return self.connections[1][adj_dir]
+    def get_overpass(self):
+        return self.is_overpass
 
     
+
+basic_tiles = {
+    "straight_road": Tile([0,1,0,1]),
+    "straight_rail" : Tile([0,2,0,2]),
+    "curve_road" : Tile([1,1,0,0]),
+    "curve_rail" : Tile([2,2,0,0]),
+    "T_road" : Tile([1,1,1,0]),
+    "T_rail" : Tile([2,2,2,0])
+}
+
+station_tiles = {
+    "straight_station" : Tile([0,1,0,2]),
+    "curve_station" : Tile([1,2,0,0]),
+    "overpass" : Tile([1,2,1,2], True)
+}
+
+special_tiles = {
+    "special_0" : Tile([1,1,1,1]),
+    "special_1" : Tile([1,1,1,2]),
+    "special_2" : Tile([1,1,2,2]),
+    "special_3" : Tile([1,2,1,2]),
+    "special_4" : Tile([1,2,2,2]),
+    "special_5" : Tile([2,2,2,2])
+}
