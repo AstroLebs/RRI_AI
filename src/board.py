@@ -1,11 +1,11 @@
 from tile import Tile
-import NetworkX as nx
+import networkx as nx
 
 class Board:
     def __init__(self):
         self.board = [[None for _ in range(9)] for _ in range(9)]
-        self.init_board()
         self.G = nx.Graph()
+        self.init_board()
 
     def init_board(self):
         for i in range(9):
@@ -13,10 +13,10 @@ class Board:
             self.board[i][8] = Tile([0,0,0,0])
             self.board[0][i] = Tile([0,0,0,0])
             self.board[8][i] = Tile([0,0,0,0])
-            G.add_nodes_from(['border_'+i+'0',
-            'border_'+i+'8',
-            'border_'+'0'+i,
-            'border_'+'8'+i])
+            self.G.add_nodes_from(['border_'+str(i)+'0',
+            'border_'+str(i)+'8',
+            'border_'+'0'+str(i),
+            'border_'+'8'+str(i)])
 
         self.board[0][2] = Tile([0,2,0,0])
         self.board[0][4] = Tile([0,1,0,0])
@@ -34,7 +34,7 @@ class Board:
         self.board[4][8] = Tile([2,0,0,0])
         self.board[6][8] = Tile([1,0,0,0])
 
-        G.add_nodes_from([
+        self.G.add_nodes_from([
         'exit_02',
         'exit_04',
         'exit_06',
@@ -47,8 +47,6 @@ class Board:
         'exit_28',
         'exit_48',
         'exit_68'])
-
-        G.add_nodes_from([])
 
     def place_tile(self, tile, x, y):
         if self.valid_move(tile, x, y):
@@ -85,7 +83,7 @@ class Board:
                 exit_rotation += 1
                 continue
 
-            if self.get_tile(x, y).get_exists()[(exit_rotation+2)%4] != 0 and self.get_tile(x+dx, y+dy).get_exits()[exit_rotation] != 0:
+            if self.get_tile(x, y).get_exits()[(exit_rotation+2)%4] != 0 and self.get_tile(x+dx, y+dy).get_exits()[exit_rotation] != 0:
                 if self.get_tile(x, y).get_exits()[(exit_rotation+2)%4] == self.get_tile(x+dx, y+dy).get_exits()[exit_rotation]:
                     connections.append((x+dx, y+dy))
             
