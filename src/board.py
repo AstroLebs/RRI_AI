@@ -51,6 +51,9 @@ class Board:
     def place_tile(self, tile, x, y):
         if self.valid_move(tile, x, y):
             self.board[x][y] = tile
+            connections = self.get_connections(x, y)
+            self.G.add_node(str(x)+str(y))
+            self.G.add_edges_from(connections)
             return True
         return False
 
