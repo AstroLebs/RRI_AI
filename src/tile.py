@@ -1,39 +1,34 @@
 class Tile:
-    def __init__(self, exits, overpass=None):
-        self.exits = exits
-        self.is_overpass = overpass if overpass is not None else False
-    
-    def rotate(self):
-        self.exits[:] = self.exits[-1:] + self.exits[:-1]
-    
-    def get_exits(self):
-        return self.exits
+    """
+    Represents a tile in the Railroad Ink game.
+    Attributes:
+        name (str): The name of the tile.
+        exits (list): A list of exit types, where:
+            0: No exit
+            1: Road exit
+            2: Rail exit
+        connections (dict): A dictionary specifying valid connections between route types.
+        image (any, optional): An optional image representation of the tile.
+    """
 
-    def get_overpass(self):
-        return self.is_overpass
+    def __init__(self, name, exits, connections, image = None):
+        self.name = name
+        self.exits = exits # 0: No exit, 1: Road exit, 2: Rail exit
+        self.connections = connections
+        self.image = image
 
-    
+    def rotate(self, clockwise):
+        """
+        Rotates the tile clockwise or counter-clockwise.
+        Args:
+            clockwise (bool, optional): If True, rotates clockwise. 
+                If False, rotates counter-clockwise. Defaults to True.
+        """
 
-basic_tiles = {
-    "straight_road": Tile([0,1,0,1]),
-    "straight_rail" : Tile([0,2,0,2]),
-    "curve_road" : Tile([1,1,0,0]),
-    "curve_rail" : Tile([2,2,0,0]),
-    "T_road" : Tile([1,1,1,0]),
-    "T_rail" : Tile([2,2,2,0])
-}
+        if clockwise is None:
+            clockwise = True
 
-station_tiles = {
-    "straight_station" : Tile([0,1,0,2]),
-    "curve_station" : Tile([1,2,0,0]),
-    "overpass" : Tile([1,2,1,2], True)
-}
-
-special_tiles = {
-    "special_0" : Tile([1,1,1,1]),
-    "special_1" : Tile([1,1,1,2]),
-    "special_2" : Tile([1,1,2,2]),
-    "special_3" : Tile([1,2,1,2]),
-    "special_4" : Tile([1,2,2,2]),
-    "special_5" : Tile([2,2,2,2])
-}
+        if clockwise:
+            self.exits = self.exits[-1] + self.exits[:-1]
+        else:
+            self.exits = self.exits[1:] + [self.exits[0]]
