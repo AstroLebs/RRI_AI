@@ -29,6 +29,6 @@ class Tile:
             clockwise = True
 
         if clockwise:
-            self.exits = self.exits[-1] + self.exits[:-1]
+            self.exits = [self.exits[-1]] + self.exits[:-1]
         else:
             self.exits = self.exits[1:] + [self.exits[0]]

@@ -1,5 +1,6 @@
 import networkx as nx
 import matplotlib.pyplot as plt
+from tile import Tile
 
 class Board:
     def __init__(self, board_type = None):
@@ -19,36 +20,40 @@ class Board:
                 
                 if (x==0 or x == self.size+1) and (y != 0 and y != self.size+1):
                     if y % 4 == 0:
-                        self.graph.add_node((x,y), pos=(x,y), exit='road')
+                        self.graph.add_node((x,y), pos=(x,y), tile = Tile("Road Exit", [1,1,1,1], {'road':['road']}))
+
                     elif y % 4 == 2:
-                        self.graph.add_node((x,y), pos=(x,y), exit='rail')
+                        self.graph.add_node((x,y), pos=(x,y), tile = Tile("Rail Exit", [2,2,2,2], {'rail':['rail']}))
                     else:
-                        self.graph.add_node((x,y), pos=(x,y), exit='border')
+                        self.graph.add_node((x,y), pos=(x,y), tile = Tile("Border", [0,0,0,0],{'road':[None],'rail':[None]}))
                     continue
                 
                 if (y==0 or y == self.size+1) and (x != 0 and x != self.size+1):
                     if x % 4 == 0:
-                        self.graph.add_node((x,y), pos=(x,y), exit='rail')
+                        self.graph.add_node((x,y), pos=(x,y), tile = Tile("Rail Exit", [2,2,2,2], {'rail':['rail']}))
                     elif x % 4 == 2:
-                        self.graph.add_node((x,y), pos=(x,y), exit='road')
+                        self.graph.add_node((x,y), pos=(x,y), tile = Tile("Road Exit", [1,1,1,1], {'road':['road']}))
                     else:
-                        self.graph.add_node((x,y), pos=(x,y), exit='border')
+                        self.graph.add_node((x,y), pos=(x,y), tile = Tile("Border", [0,0,0,0],{}))
                     continue
                 
-                self.graph.add_node((x,y), pos=(x,y), exit='none')
+                self.graph.add_node((x,y), pos=(x,y), tile = Tile("Empty", [0,0,0,0],{}))
 
     def plot_board(self, filename = None):
         filename = f"{filename}.png" if filename else "board.png"
         pos = nx.get_node_attributes(self.graph, 'pos')
 
         nx.draw(self.graph, pos, with_labels=True)
-        road_exits = [node for node, data in self.graph.nodes(data=True) if data.get('exit') == 'road']
-        rail_exits = [node for node, data in self.graph.nodes(data=True) if data.get('exit') == 'rail']
-        border = [node for node, data in self.graph.nodes(data=True) if data.get('exit') == 'border']
+        road_exits = [node for node, data in self.graph.nodes(data=True) if data.get('tile') and data.get('tile').name == 'Road Exit']
+        rail_exits = [node for node, data in self.graph.nodes(data=True) if data.get('tile') and data.get('tile').name == 'Rail Exit']
+        border = [node for node, data in self.graph.nodes(data=True) if data.get('tile') and data.get('tile').name == 'Border']
         
-        nx.draw_networkx_nodes(self.graph, pos, nodelist=road_exits, node_color='r', node_shape='s', label=True)
-        nx.draw_networkx_nodes(self.graph, pos, nodelist=rail_exits, node_color='b', node_shape='s')
         nx.draw_networkx_nodes(self.graph, pos, nodelist=border, node_shape='s')
+        nx.draw_networkx_nodes(self.graph, pos, nodelist=road_exits, node_color='r', node_shape='s')
+        nx.draw_networkx_nodes(self.graph, pos, nodelist=rail_exits, node_color='b', node_shape='s')
+        
+
+        plt.axis('off')
 
         plt.savefig(filename)
         plt.close()
@@ -59,7 +64,8 @@ class Board:
         if not (1 <= x < self.size+1 and 1 <= y < self.size+1):
             return False
 
-        if 'tile' in self.graph.nodes[x,y]:
+        check_tile = self.graph.nodes[x,y].get('tile')
+        if check_tile and check_tile.name != "Empty":
             return False
 
         if not self.check_exit_alignment(tile, pos):
@@ -90,17 +96,11 @@ class Board:
 
             if neighbour_pos is None or neighbour_pos not in self.graph.nodes:
                 return False
-
-            neighbour_exit = self.graph.nodes[neighbour_pos]['exit']
-            exits = {
-                0 : 'none',
-                1 : 'road',
-                2 : 'rail'
-
-            }
-            if neighbour_exit == exits[exit_type] or (neighbour_exit == 'border' and has_connection):
+            
+            neighbour_exit = self.graph.nodes[neighbour_pos]['tile'].exits[direction]
+            if neighbour_exit == exit_type or (neighbour_exit == 0 and has_connection):
                 has_connection = True
-            elif neighbour_exit != 'border':
+            elif neighbour_exit != 0:
                 return False
             
         return has_connection
@@ -125,12 +125,7 @@ class Board:
             if neighbour_pos is None or neighbour_pos not in self.graph.nodes:
                 continue
 
-            neighbour_exit = self.graph.nodes[neighbour_pos]['exit']
-            exits = {
-                0 : 'none',
-                1 : 'road',
-                2 : 'rail'
-
-            }
-            if neighbour_exit in [exits[exit_type], 'border']:
+            neighbour_exit = self.graph.nodes[neighbour_pos]['tile'].exits[direction]
+            
+            if neighbour_exit == exit_type:
                 self.graph.add_edge(pos, neighbour_pos, type=exit_type)
