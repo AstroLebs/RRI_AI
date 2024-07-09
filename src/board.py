@@ -11,7 +11,7 @@ class Board:
         'EPIC' : 11
         }
         self.size = BOARDS[board_type if board_type else 'CLASSIC']
-        self.graph = nx.DiGraph()
+        self.graph = nx.Graph()
         self.init_board()
 
     def init_board(self):
@@ -127,6 +127,5 @@ class Board:
 
             neighbour_exit = self.graph.nodes[neighbour_pos]['tile'].exits[direction]
             
-            self.graph.add_edge(pos, neighbour_pos, type=exit_type)
             if neighbour_exit == exit_type:
                 self.graph.add_edge(neighbour_pos, pos, type=exit_type)

@@ -7,9 +7,13 @@ def calculate_score(G, board_type = None):
         board_type = 'CLASSIC'
     score = 0
     score += longest_path_len(G, 'road')
+    print(score)
     score += longest_path_len(G, 'rail')
+    print(score)
     score += tiles_in_grid(G, (4,4))
+    print(score)
     score += connected_exits(G)
+    print(score)
     score -= unconnected_edges(G)
     return score
 
@@ -20,7 +24,7 @@ def longest_path_len(G, connection_type):
         visited.add(node)
         current_path.append(node)
 
-        for n in G.neighbor(node):
+        for n in G.neighbors(node):
             if n not in visited and G[node][n]['type'] == connection_type and node in G.neighbors(n) and G[n][node]['type'] == connection_type:
                 dfs(n, current_path, visited)
 
@@ -46,7 +50,9 @@ def tiles_in_grid(G, pos):
     return count
 
 def unconnected_edges(G):
-    pass
+    return 0
 
 def connected_exits(G):
-    pass
+    exits = -1
+        
+    return 0
