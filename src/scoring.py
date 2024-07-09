@@ -3,53 +3,56 @@ from board import Board
 from tile import Tile
 
 def calculate_score(G, board_type = None):
+    if board_type is None:
+        board_type = 'CLASSIC'
     score = 0
-    road_len = len(longest_path(G, 'road'))
-
-    rail_len= len(longest_path(G, 'rail'))
-    connected_group = score_connected_exit_groups(G)
-    mid_tiles= count_tiles_around_point(G, (4,4))
-    print(f"{road_len}:{rail_len}:{connected_group}:{mid_tiles}")
-    score = road_len + rail_len + connected_group + mid_tiles
+    score += longest_path_len(G, 'road')
+    print(score)
+    score += longest_path_len(G, 'rail')
+    print(score)
+    score += tiles_in_grid(G, (4,4))
+    print(score)
+    score += connected_exits(G)
+    print(score)
+    score -= unconnected_edges(G)
     return score
 
-def longest_path(graph, route_type):
-    # NOT WORKING (ALWAYS RETURNS 0)
+def longest_path_len(G, connection_type):
     longest_path = []
-    filtered_graph = nx.Graph([(u, v, d) for u, v, d in graph.edges(data=True) if d.get('type') == route_type])
-    
-    valid_nodes = [node for node in filtered_graph.nodes if 1 <= node[0] <= self.size and 1 <= node[1] <= self.size]
-    def dfs(node, current_path):
-        nonlocal longest_path
+
+    def dfs(node, current_path, visited):
+        visited.add(node)
         current_path.append(node)
+
+        for n in G.neighbors(node):
+            if n not in visited and G[node][n]['type'] == connection_type and node in G.neighbors(n) and G[n][node]['type'] == connection_type:
+                dfs(n, current_path, visited)
+
+        nonlocal longest_path
         if len(current_path) > len(longest_path):
             longest_path = current_path.copy()
-        for neighbor in filtered_graph.neighbors(node):
-            if neighbor in valid_nodes and neighbor not in current_path:
-                dfs(neighbor, current_path)
+
         current_path.pop()
-    
-    for node in valid_nodes:
-        dfs(node, [])
-    return longest_path
+        visited.remove(node)
 
-def score_connected_exit_groups(graph):
-    exit_nodes = [node for node, data in graph.nodes(data=True) if data.get('exit')]
-    exit_subgraph = graph.subgraph(exit_nodes)
-    connected_components = list(nx.connected_components(exit_subgraph))
-    group_sizes = [len(component) for component in connected_components]
+    for node in G.nodes:
+        dfs(node, [], set())
 
-    score = sum([(n-1) * 4 + (1 if n == 12 else 0) for n in group_sizes])
-    return score
+    return len(longest_path)
 
-def count_tiles_around_point(graph, point):
-    # NOT WORKING (ALWAYS RETURNS 9)
-    x_pos,y_pos = point
-    tile_count = 0
+def tiles_in_grid(G, pos):
+    x,y = pos
+    count = 0
+    for i in range(x - 1, x + 2):
+        for j in range(y - 1, y + 2):
+            if G.has_node((i,j)) and G.nodes[(i,j)].get('tile'):
+                count += 1
+    return count
 
-    for x in range(x_pos -1, x_pos + 2):
-        for y in range(y_pos -1, y_pos + 2):
-            if (x, y) in graph.nodes and 'tile' in graph.nodes[(x, y)]:
-                tile_count += 1
+def unconnected_edges(G):
+    return 0
 
-    return tile_count
+def connected_exits(G):
+    exits = -1
+        
+    return 0
