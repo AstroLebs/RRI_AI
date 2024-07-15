@@ -15,8 +15,8 @@ class Game:
     def roll_dice(self):
         self.available_tiles = [die.roll() for die in self.dice]
 
-    def place_tile(self, tile, pos):
-        return self.board.place_tile(tile, pos)
+    def place_tile(self, tile, pos, round):
+        return self.board.place_tile(tile, pos, round)
 
     def play_game(self):
         num_rounds = 7
@@ -30,7 +30,7 @@ class Game:
                 chosen_tile, chosen_position, rot_num = self.get_player_choice()
                 for _ in range(rot_num):
                     chosen_tile.rotate(True)
-                if self.place_tile(chosen_tile, chosen_position):
+                if self.place_tile(chosen_tile, chosen_position, round):
                     self.available_tiles.remove(chosen_tile)
                 else:
                     print("Illegal move! Try again")
@@ -91,5 +91,4 @@ class Game:
 if __name__ == "__main__":
     game = Game()
     game.board.plot_board()
-    print(game.board.graph.nodes[2,0])
     game.play_game()

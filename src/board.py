@@ -58,9 +58,9 @@ class Board:
         plt.savefig(filename)
         plt.close()
 
-    def place_tile(self, tile, pos):
+    def place_tile(self, tile, pos, round):
         x, y = pos
-
+        tile.round = round
         if not (1 <= x < self.size+1 and 1 <= y < self.size+1):
             return False
 

@@ -11,11 +11,17 @@ class Tile:
         image (any, optional): An optional image representation of the tile.
     """
 
-    def __init__(self, name, exits, connections, image = None):
+    def __init__(self, name, exits, connections, round = None, image = None):
         self.name = name
         self.exits = exits # 0: No exit, 1: Road exit, 2: Rail exit
         self.connections = connections
         self.image = image
+
+        if round == None:
+            self.round = 0
+        else:
+            self.round = round
+
 
     def rotate(self, clockwise):
         """
